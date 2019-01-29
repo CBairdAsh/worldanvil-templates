@@ -5,7 +5,7 @@
 <div class="row cat-bar pad_btm_1em">
   <div class="col-md-12">
 
-    {% set atr_segments = ['Dexterity|dex', 'Perception|per', 'Knowledge|knowl', 'Strength|str', 'Mechanical|mech', 'Technical|tech'] %}
+    {% set atr_segments = ['Dexterity|dexterity', 'Perception|perception', 'Knowledge|knowledge', 'Strength|strength', 'Mechanical|mechanical', 'Technical|technical'] %}
 
     {% for row in atr_segments|batch(2, '') %}
     <div class="row marg_top_1em">
@@ -14,8 +14,8 @@
               {% set title_text = chunks[0] %}
               {% set obj_prefix = chunks[1] %}
 
-              {% set ascore = macros.attrib_ux(variables[obj_prefix],variables[obj_prefix ~ '_bns']) %}
-              {{ macros.attrib_section(title_text,ascore, (variables[obj_prefix ~ '_skill']|ParseTable|BBcode), (variables[obj_prefix ~ '_spec']|ParseTable|BBcode), (variables[obj_prefix ~ '_adv']|ParseTable|BBcode) ) }}
+              {% set ascore = macros.attrib_ux(variables[obj_prefix],variables[obj_prefix ~ '_pips']) %}
+              {{ macros.attrib_section(title_text,ascore, (variables[obj_prefix ~ '_skills']|ParseTable|BBcode), (variables[obj_prefix ~ '_specializations']|ParseTable|BBcode), ('advanced_' ~ variables[obj_prefix ~ '_skills']|ParseTable|BBcode) ) }}
 
             {% endfor %}
     </div>
@@ -24,8 +24,8 @@
     {% if variables.martial_arts is defined and variables.martial_arts != '' %}
     <div class="row marg_top_1em">
       <div class="col-md-12">
-        {% set ascore = macros.attrib_ux(variables.martial_arts,variables.martial_arts_bns) %}
-        {{ macros.skill_power_section('Martial Arts',ascore, 'Maneuvers', (variables.martial_arts_maneuvers|ParseTable|BBcode) ) }}
+        {% set ascore = macros.attrib_ux(variables.martial_arts,variables.martial_arts_pips) %}
+        {{ macros.skill_power_section('Martial Arts',ascore, 'Maneuvers', (variables.maneuvers|ParseTable|BBcode) ) }}
       </div>
     </div>
     {% endif %}
@@ -35,11 +35,11 @@
 {% endblock %}
 
 {% block swweg_force_powers %}
-  {% if variables.forcesens is defined and variables.forcesens %}
+  {% if variables.force_sensitive is defined and variables.force_sensitive %}
     <div class="row cat-bar pad_btm_1em">
       <div class="col-md-12">
 
-        {% set atr_segments = ['Control|fs_control', 'Sense|fs_sense', 'Alter|fs_alter'] %}
+        {% set atr_segments = ['Control|force_skill_control', 'Sense|force_skill_sense', 'Alter|force_skill_alter'] %}
 
         {% for atr_item in atr_segments %}
           {% set chunks = atr_item|split('|') %}
@@ -49,8 +49,13 @@
           {% if variables[obj_prefix] is defined and variables[obj_prefix] != '' %}
           <div class="row">
             <div class="col-md-12">
-              {{ macros.attrib_w_dcode(title_text,( macros.attrib_ux(variables[obj_prefix],variables[obj_prefix ~ '_bns']) ) ) }}
+              {% set pip_ref = obj_prefix %}
+              {% set pip_ref = pip_ref|replace({'force_skill_': 'force_skill_pips_'}) %}
+              {{ macros.attrib_w_dcode(title_text,( macros.attrib_ux(variables[obj_prefix],variables[pip_ref]) ) ) }}
               {{ macros.title_block_w_btm_margin(title_text ~ ' Powers') }}
+
+              {% set power_ref = obj_prefix %}
+              {% set power_ref = power_ref|replace({'force_skill_': ''}) %}
               {{ macros.flex_skill_list_section( (variables[obj_prefix ~ '_powers']|ParseTable|BBcode) ) }}
             </div>
           </div>
@@ -58,7 +63,7 @@
 
         {% endfor %}
 
-        {% set atr_segments = ['Control / Sense Powers|fs_control_sense_powers', 'Control / Alter Powers|fs_control_alter_powers', 'Sense / Alter Powers|fs_sense_and_alter_powers', 'Control / Sense / Alter Powers|fs_control_sense_alter_powers'] %}
+        {% set atr_segments = ['Control / Sense Powers|control_and_sense_powers', 'Control / Alter Powers|control_and_alter_powers', 'Sense / Alter Powers|sense_and_alter_powers', 'Control / Sense / Alter Powers|control_sense_and_alter_powers'] %}
 
         {% for atr_item in atr_segments %}
           {% set chunks = atr_item|split('|') %}
@@ -84,7 +89,7 @@
 
 {% block gear_group %}
   <div class="row cat-bar pad_btm_1em">
-    {{ macros.gear_sections('Special Abilities', (variables.spec_abil|ParseTable|BBcode) ) }}
+    {{ macros.gear_sections('Special Abilities', (variables.special_abilities|ParseTable|BBcode) ) }}
   </div>
   <div class="row">
     {{ macros.gear_sections('Equipment', (variables.equipment|ParseTable|BBcode) ) }}
