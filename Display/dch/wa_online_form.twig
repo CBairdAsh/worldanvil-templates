@@ -1,3 +1,10 @@
+{% macro detail_process(detail_val) %}
+		{% if ( '|' in detail_val ) %}
+			{{ detail_val|ParseTable }}
+		{% else %}
+			{{ detail_val|nl2br }}
+		{% endif %}	 
+{% endmacro %}
 {% macro benchmrk_ux(atr_val, atr_title) %}
   <div class="row mb-1em bench_title">
     <div class="col-md-3">{{ atr_title }}</div>
@@ -93,6 +100,71 @@
   {% if ( wealth > 23 ) %}
     ( Approx. Annual Income : $12,000,000,000)
   {% endif %}
+{% endmacro %}
+{% macro wealth_limit(AP) %}
+    {% if AP == 0 %}
+      This person can afford to spend up to $25 per week
+    {% endif %}
+    {% if AP == 1 %}
+      This person can afford to spend up to $50 per week
+    {% endif %}
+    {% if AP == 2 %}
+      This person can afford to spend up to $100 per week
+    {% endif %}
+    {% if AP == 3 %}
+      This person can afford to spend up to $200 per week
+    {% endif %}
+    {% if AP == 4 %}
+      This person can afford to spend up to $400 per week
+    {% endif %}
+    {% if AP == 5 %}
+      This person can afford to spend up to $800 per week
+    {% endif %}
+    {% if AP == 6 %}
+      This person can afford to spend up to $1600 per week
+    {% endif %}
+    {% if AP == 7 %}
+      This person can afford to spend up to $3200 per week
+    {% endif %}
+    {% if AP == 8 %}
+      This person can afford to spend up to $6400 per week
+    {% endif %}
+    {% if AP == 9 %}
+      This person can afford to spend up to $12,800 per week
+    {% endif %}
+    {% if AP == 10 %}
+      This person can afford to spend up to $25,600 per week
+    {% endif %}
+    {% if AP == 11 %}
+      This person can afford to spend up to $51,200 per week
+    {% endif %}
+    {% if AP == 12 %}
+      This person can afford to spend up to $102,400 per week
+    {% endif %}
+    {% if AP == 13 %}
+      This person can afford to spend up to $204,800 per week
+    {% endif %}
+    {% if AP == 14 %}
+      This person can afford to spend up to $409,600 per week
+    {% endif %}
+    {% if AP == 15 %}
+      This person can afford to spend up to $819,200 per week
+    {% endif %}
+    {% if AP == 16 %}
+      This person can afford to spend up to $1,638,400 per week
+    {% endif %}
+    {% if AP == 17 %}
+      This person can afford to spend up to $3,276,800 per week
+    {% endif %}
+    {% if AP == 18 %}
+      This person can afford to spend up to $6,553,600 per week
+    {% endif %}
+    {% if AP == 19 %}
+      This person can afford to spend up to $13,107,200 per week
+    {% endif %}
+    {% if AP >= 20 %}
+      This person can afford to spend up to $26,214,400 per week
+    {% endif %}
 {% endmacro %}
 {% macro bmark(AP, which) %}
   {% if ( AP == 1 ) or ( AP == 2 ) %}
@@ -573,28 +645,30 @@
         </div>
       </div>
     </div>
+    {% if variables.powers is defined %} 
     <div class="detail_banner">
       <h3 class="section_header">POWERS</h3>
       <div class="header_subtitle">(* Linked Powers)</div>
     </div>
-    <div id="powers_list" class="section_detail">{{variables.powers}}</div>
+    <div id="powers_list" class="section_detail">{{ macros.detail_process(variables.powers) }}</div>
+    {% endif %}
     <div class="detail_banner">
       <h3 class="section_header">BONUSES AND LIMITATIONS</h3>
     </div>
-    <div id="bonus_limitations" class="section_detail">{{variables.bonuses_and_limitations}}</div>
+    <div id="bonus_limitations" class="section_detail">{{ macros.detail_process(variables.bonuses_and_limitations) }}</div>
     <div class="detail_banner">
       <h3 class="section_header">SKILLS</h3>
       <div class="header_subtitle">(* Linked Skills)</div>
     </div>
-    <div id="skill_list" class="section_detail">{{variables.skills}}</div>
+    <div id="skill_list" class="section_detail">{{ macros.detail_process(variables.skills) }}</div>
     <div class="detail_banner">
       <h3 class="section_header">ADVANTAGES</h3>
     </div>
-    <div id="adv_list" class="section_detail">{{variables.advantages}}</div>
+    <div id="adv_list" class="section_detail">{{ macros.detail_process(variables.advantages) }}</div>
     <div class="detail_banner">
       <h3 class="section_header">DRAWBACKS</h3>
     </div>
-    <div id="drawback_list" class="section_detail">{{variables.drawbacks}}</div>
+    <div id="drawback_list" class="section_detail">{{ macros.detail_process(variables.drawbacks) }}</div>
     <div class="detail_banner">
       <h3 class="section_header">OCCUPATION AND WEALTH</h3>
     </div>
@@ -602,14 +676,16 @@
       <div id="occupation">{{variables.occupation}}</div>
       <div id="wealth"> : Wealth {{ variables.wealth ~ ' ' ~ macros.annwealth(variables.wealth) }}</div>
     </div>
+    {% if variables.equipment is defined %}
     <div class="detail_banner">
       <h3 class="section_header">EQUIPMENT</h3>
     </div>
-    <div id="equip_list" class="section_detail">{{variables.equipment}}</div>
+    <div id="equip_list" class="section_detail">{{ macros.detail_process(variables.equipment) }}</div>    
+    {% endif %}
     <div class="detail_banner">
       <h3 class="section_header">SUBPLOTS</h3>
     </div>
-    <div id="subplot_notes" class="section_detail">{{variables.subplots}}</div>
+    <div id="subplot_notes" class="section_detail">{{ macros.detail_process(variables.subplots) }}</div>
     <div class="detail_banner">
       <h3 class="section_header">ATTRIBUTE BREAKDOWN</h3>
     </div>
@@ -624,12 +700,7 @@
     {{ macros.benchmrk_ux(macros.bmark( variables.influence, 'infl'),'INFL (Influence)') }}
     {{ macros.benchmrk_ux(macros.bmark( variables.aura, 'aura'),'AURA (Aura)') }}
     {{ macros.benchmrk_ux(macros.bmark( variables.spirit, 'spirit'),'SPIRIT (Spirit)') }}
-
-    <!--
-    add wealth to benchmark
-This person can afford to spend up to $ per week
-    -->
-
+    {{ macros.benchmrk_ux(macros.wealth_limit( variables.wealth),'WEALTH') }}
 
 	</div>
   </div>
