@@ -1,0 +1,122 @@
+{% macro notes_section(_notes) %}
+    {% if '|' in slist %}
+       {{ _notes|ParseTable }}
+    {% else %}
+       {{ _notes|nl2br }}
+    {% endif %}
+{% endmacro %}
+{% macro handle_blank(_title,_val) %}
+    {% set _value = '[' ~ _val ~ ']' %}
+    {% if _val == '' %}
+        {% set _value = '' %}
+    {% endif %}
+    {{_title}}: {{_value}}
+{% endmacro %}
+{% macro weapon_block(_num, title, _fl, _fc, _dam) %}
+  {% import _self as innermacro %}
+    {% if _fl == 'Yes' %}
+        {% set _fl = '(fire linked)' %}
+    {% endif %}
+    {% if _fl == 'No' %}
+        {% set _fl = '(fire separately)' %}
+    {% endif %}
+    <div class="row">
+        <div class="flex-base flex-col flex-wrap">
+            <div class="marg_right_1em swweg-header">{{ _num }} {{ title }} <span class="subhead">{{ _fl }}</span></div>
+            <div class="skill_list_ital"> {{ innermacro.handle_blank('Fire Control', _fc) }} </div>
+            <div class="skill_list_ital"> {{ innermacro.handle_blank('Damage', _dam) }} </div>            
+        </div>
+    </div>
+{% endmacro %}
+{% macro stat_section(title,val, bracket) %}
+    {% set _value = val %}
+    {% if bracket == 'y' %}
+        {% set _value = '[' ~ val ~ ']' %}
+    {% endif %}
+    {% if val == '' %}
+        {% set _value = '' %}
+    {% endif %}    
+    <div class="row">
+        <div class="flex-base flex-wrap">
+            <div class="marg_right_1em swweg-header stat_title">{{title}} :</div>
+            <div class="skill_list"> {{ _value }} </div>
+        </div>
+    </div>
+{% endmacro %}
+
+{% import _self as macros %}
+{% block body %}
+<div class="swweg_page">
+    <div class="swweg-container-fluid">
+    	<div class="row pad_btm_1em">
+    		<div class="col-md-12">
+    			<div class="row">
+    				<div class="col-md-6 char_name">{{ variables.name }}</div>
+    			</div>
+    		</div>
+    	</div>
+        <div class="row pad_btm_1em">
+            <div class="col-md-12">
+                    {{ macros.stat_section('Craft', variables.craft, 'n') }}
+                    {{ macros.stat_section('Type', variables.type,'n') }}
+                    {{ macros.stat_section('Length', variables.length,'n') }}
+                    {{ macros.stat_section('Crew', variables.crew,'n') }}
+                    {{ macros.stat_section('Passengers or Troops', variables.passengers,'n') }}
+                    {{ macros.stat_section('Cargo Capacity', variables.cargo_capacity ,'n') }}
+                    {{ macros.stat_section('Consumables', variables.consumables,'n') }}
+                    {{ macros.stat_section('Hyperdrive Multiplier', variables.hyperdrive,'y') }}
+                    {{ macros.stat_section('Nav Computer', variables.nav_computer,'y') }}
+                    {{ macros.stat_section('Hyperdrive Backup', variables.hyperdrive_backup,'y') }}
+                    {{ macros.stat_section('Sublight Speed', variables.sublight_speed,'y') }}
+                    {{ macros.stat_section('Maneuverability', variables.maneuverability,'y') }}
+                    {% if variables.hull != '' %}
+                        {{ macros.stat_section('Hull', variables.hull,'y') }}
+                    {% endif %}
+                    {% if variables.shields != '' %}
+                        {{ macros.stat_section('Shields', variables.shields,'y') }}                    
+                    {% endif %}
+                    {{ macros.stat_section('Weapons', '','n') }}
+                    <div class="col-md-12 cat-bar pad_btm_1em">
+                        <div class="row">
+                        <div class="col-md-12 indent_block">  
+                        {% if variables.number_of_laserblasterbeam_cannon > 0 %}
+                            {{ macros.weapon_block(variables.number_of_laserblasterbeam_cannon, variables.type_of_laserblasterbeam_cannon,variables.firelinked_cannons, variables.cannon_fire_control, variables.cannon_damage) }}
+                        {% endif %}
+                        </div>
+                        <div class="col-md-12 indent_block">
+                        {% if variables.number_of_heavy_lasers > 0 %}
+                            {{ macros.weapon_block(variables.number_of_heavy_lasers , variables.type_of_heavy_laser,variables.firelinked_heavy_lasers, variables.heavy_laser_fire_control, variables.heavy_laser_damage) }}
+                        {% endif %}
+                        </div>
+                        <div class="col-md-12 indent_block">
+                        {% if variables.number_of_ion_cannons  > 0 %}
+                            {{ macros.weapon_block(variables.number_of_ion_cannons  , variables.type_of_ion_cannon ,variables.firelinked_ion_cannon , variables.ion_cannon_fire_control , variables.ion_cannon_damage ) }}
+                        {% endif %}
+                        </div>
+                        <div class="col-md-12 indent_block">
+                        {% if variables.number_of_tractor_beam_projectors   > 0 %}
+                            {{ macros.weapon_block(variables.number_of_tractor_beam_projectors, 'Tractor Beam Projectors' , 'No', variables.tractor_beam_fire_control, 'None; target captured if hit' ) }}
+                        {% endif %}
+                        </div>                        
+                        </div>
+                    </div>
+                    <div class="col-md-12 marg_top_1em">
+                        <div class="row">
+                            <div class="col-md-12 marg_top_1em">
+                                {{ macros.stat_section('Notes', '','n') }}
+                                <div class="col-md-12">
+                                    <div class="row">
+                                        <div class="flex-base flex-wrap skill_list">
+                                            {{ macros.notes_section(variables.notes) }}
+                                        </div>                     
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>                    
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
