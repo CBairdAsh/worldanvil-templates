@@ -1,0 +1,116 @@
+{% macro notes_section(_notes) %}
+    {% if '|' in slist %}
+       {{ _notes|ParseTable }}
+    {% else %}
+       {{ _notes|nl2br }}
+    {% endif %}
+{% endmacro %}
+{% macro handle_blank(_title,_val) %}
+    {% set _value = '[' ~ _val ~ ']' %}
+    {% if _val == '' %}
+        {% set _value = '' %}
+    {% endif %}
+    {{_title}}: {{_value}}
+{% endmacro %}
+{% macro weapon_block(_num, title, _fl, _fc, _dam) %}
+  {% import _self as innermacro %}
+    {% if _fl == 'Yes' %}
+        {% set _fl = '(fire linked)' %}
+    {% else %}
+        {% set _fl = '(fire separately)' %}
+    {% endif %}
+    {% if _num == '1' %}
+        {% set _fl = '' %}
+    {% endif %}
+    <div class="row">
+        <div class="flex-base flex-col flex-wrap">
+            <div class="marg_right_1em swweg-header">{{ _num }} {{ title }} <span class="subhead">{{ _fl }}</span></div>
+            <div class="skill_list_ital"> {{ innermacro.handle_blank('Fire Control', _fc) }} </div>
+            <div class="skill_list_ital"> {{ innermacro.handle_blank('Damage', _dam) }} </div>            
+        </div>
+    </div>
+{% endmacro %}
+{% macro stat_section(title,val, bracket) %}
+    {% set _value = val %}
+    {% if bracket == 'y' %}
+        {% set _value = '[' ~ val ~ ']' %}
+    {% endif %}
+    {% if val == '' %}
+        {% set _value = '' %}
+    {% endif %}    
+    <div class="row">
+        <div class="flex-base flex-wrap">
+            <div class="marg_right_1em swweg-header stat_title">{{title}} :</div>
+            <div class="skill_list"> {{ _value }} </div>
+        </div>
+    </div>
+{% endmacro %}
+
+{% import _self as macros %}
+{% block body %}
+<div class="swweg_page">
+    <div class="swweg-container-fluid">
+    	<div class="row pad_btm_1em">
+    		<div class="col-md-12">
+    			<div class="row">
+    				<div class="col-md-6 char_name">{{ variables.name }}</div>
+    			</div>
+    		</div>
+    	</div>
+        <div class="row pad_btm_1em">
+            <div class="col-md-12">
+                    {{ macros.stat_section('Craft', variables.craft, 'n') }}
+                    {{ macros.stat_section('Crew', variables.crew,'n') }}
+                    {{ macros.stat_section('Passengers', variables.passengers,'n') }}
+                    {{ macros.stat_section('Cargo Capacity', variables.cargo_capacity ,'n') }}
+                    {{ macros.stat_section('Speed Code', variables.speed_code ,'y') }}
+                    {{ macros.stat_section('Maneuverability', variables.maneuverability,'y') }}
+                    {{ macros.stat_section('Body Strength', variables.body_strength ,'y') }}
+                    {{ macros.stat_section('Weapons', '','n') }}
+                    <div class="col-md-12">
+                        <div class="row">
+                            <div class="col-md-12 indent_block">  
+                            {% if variables.number_of_laserblasterbeam_cannon > 0 %}
+                                {{ macros.weapon_block(variables.number_of_laserblasterbeam_cannon, variables.type_of_laserblasterbeam_cannon,variables.firelinked_cannons, variables.cannon_fire_control, variables.cannon_damage) }}
+                            {% endif %}
+                            </div>
+                            <div class="col-md-12 indent_block">  
+                            {% if variables.number_of_secondary_laserbeamblaster_cannon   > 0 %}
+                                {{ macros.weapon_block(variables.number_of_secondary_laserbeamblaster_cannon, variables.type_of_secondary_laserbeamblaster_cannon,variables.firelinked_secondary_cannon, variables.secondary_cannon_fire_control, variables.secondary_cannon_damage) }}
+                            {% endif %}
+                            </div>                        
+                            <div class="col-md-12 indent_block">
+                            {% if variables.number_of_power_harpoons   > 0 %}
+                                {{ macros.weapon_block(variables.number_of_power_harpoons, 'Power Harpoons' , 'No', variables.power_harpoon_fire_control , variables.power_harpoon_damage  ) }}
+                            {% endif %}
+                            </div>
+                            <div class="col-md-12 indent_block">
+                            {% if variables.number_of_concussion_grenade_launchers    > 0 %}
+                                {{ macros.weapon_block(variables.number_of_concussion_grenade_launchers, 'Concussion Grenade Launchers' , 'No', variables.concussion_grenade_launcher_fire_control, variables.concussion_grenade_launcher_damage ) }}
+                            {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="cat-bar pad_btm_1em">
+                        {{ macros.stat_section('Flight Ceiling', variables.flight_ceiling ,'y') }}
+                    </div>
+                    <div class="col-md-12 marg_top_1em">
+                        <div class="row">
+                            <div class="col-md-12 marg_top_1em">
+                                {{ macros.stat_section('Notes', '','n') }}
+                                <div class="col-md-12">
+                                    <div class="row">
+                                        <div class="flex-base flex-wrap skill_list">
+                                            {{ macros.notes_section(variables.notes) }}
+                                        </div>                     
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>                    
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
