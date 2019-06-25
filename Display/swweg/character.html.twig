@@ -1,97 +1,230 @@
-{% extends 'RPGSRDBundle:Templates:swweg/swweg-base.html.twig' %}
-{% import 'RPGSRDBundle:Templates:swweg/swweg-macros.html.twig' as macros %}
-
-{% block swweg_attribute_skills %}
-<div class="row cat-bar pad_btm_1em">
-  <div class="col-md-12">
-
-    {% set atr_segments = ['Dexterity|dexterity', 'Perception|perception', 'Knowledge|knowledge', 'Strength|strength', 'Mechanical|mechanical', 'Technical|technical'] %}
-
-    {% for row in atr_segments|batch(2, '') %}
-    <div class="row marg_top_1em">
-            {% for atr_item in row %}
-              {% set chunks = atr_item|split('|') %}
-              {% set title_text = chunks[0] %}
-              {% set obj_prefix = chunks[1] %}
-
-              {% set ascore = macros.attrib_ux(variables[obj_prefix],variables[obj_prefix ~ '_pips']) %}
-              {{ macros.attrib_section(title_text,ascore, (variables[obj_prefix ~ '_skills']|ParseTable|BBcode), (variables[obj_prefix ~ '_specializations']|ParseTable|BBcode), ('advanced_' ~ variables[obj_prefix ~ '_skills']|ParseTable|BBcode) ) }}
-
-            {% endfor %}
+{% macro attrib_ux(dcode, pips) %}
+  {{ dcode }}D
+  {% if pips != 'none' %}
+    +{{pips}}
+  {%endif%}
+{% endmacro %}
+{% macro quick_stat(qval, title) %}
+<div class="quick_stat">
+  <div class="flex-base flex-col flex-nowrap pts_group">
+    {% set circle_override = '' %}
+	{% if ( title == 'Current Wounds' ) %}
+		{% set circle_override = 'circle_override' %}
+	{% endif %}
+    <div class="pts_circle flex-base flex-col flex-nowrap justify-sp-around flex-align-content-center flex-align-items-cntr {{circle_override}}">
+      {{ qval }}
     </div>
-    {% endfor %}
-
-    {% if variables.martial_arts is defined and variables.martial_arts != '' %}
-    <div class="row marg_top_1em">
-      <div class="col-md-12">
-        {% set ascore = macros.attrib_ux(variables.martial_arts,variables.martial_arts_pips) %}
-        {{ macros.skill_power_section('Martial Arts',ascore, 'Maneuvers', (variables.maneuvers|ParseTable|BBcode) ) }}
-      </div>
-    </div>
-    {% endif %}
-
+    {% set center_override = '' %}
+	{% if ( title == 'Current Wounds' ) %}
+		{% set center_override = 'swweg-header-center' %}
+	{% endif %}
+    <div class="marg_top_1em swweg-header {{center_override}}">{{ title }}</div>
   </div>
 </div>
-{% endblock %}
-
-{% block swweg_force_powers %}
-  {% if variables.force_sensitive is defined and variables.force_sensitive %}
-    <div class="row cat-bar pad_btm_1em">
-      <div class="col-md-12">
-
-        {% set atr_segments = ['Control|force_skill_control', 'Sense|force_skill_sense', 'Alter|force_skill_alter'] %}
-
-        {% for atr_item in atr_segments %}
-          {% set chunks = atr_item|split('|') %}
-          {% set title_text = chunks[0] %}
-          {% set obj_prefix = chunks[1] %}
-
-          {% if variables[obj_prefix] is defined and variables[obj_prefix] != '' %}
-          <div class="row">
-            <div class="col-md-12">
-              {% set pip_ref = obj_prefix %}
-              {% set pip_ref = pip_ref|replace({'force_skill_': 'force_skill_pips_'}) %}
-              {{ macros.attrib_w_dcode(title_text,( macros.attrib_ux(variables[obj_prefix],variables[pip_ref]) ) ) }}
-              {{ macros.title_block_w_btm_margin(title_text ~ ' Powers') }}
-
-              {% set power_ref = obj_prefix %}
-              {% set power_ref = power_ref|replace({'force_skill_': ''}) %}
-              {{ macros.flex_skill_list_section( (variables[obj_prefix ~ '_powers']|ParseTable|BBcode) ) }}
-            </div>
-          </div>
-          {% endif %}
-
-        {% endfor %}
-
-        {% set atr_segments = ['Control / Sense Powers|control_and_sense_powers', 'Control / Alter Powers|control_and_alter_powers', 'Sense / Alter Powers|sense_and_alter_powers', 'Control / Sense / Alter Powers|control_sense_and_alter_powers'] %}
-
-        {% for atr_item in atr_segments %}
-          {% set chunks = atr_item|split('|') %}
-          {% set title_text = chunks[0] %}
-          {% set obj_prefix = chunks[1] %}
-
-          {% if variables[obj_prefix] is defined and variables[obj_prefix] != '' %}
-          <div class="row">
-            <div class="col-md-12">
-              {{ macros.attrib_w_dcode(title_text,'-1') }}
-              {{ macros.flex_skill_list_section( (variables[obj_prefix]|ParseTable|BBcode) ) }}
-            </div>
-          </div>
-          {% endif %}
-
-        {% endfor %}
-
-        </div>
+{% endmacro %}
+{% macro skill_list_section(slist) %}
+  <div class="row skill_list">
+    <div class="col-md-12">
+    {% if '|' in slist %}
+       {{ slist|ParseTable }}
+    {% else %}
+       {{ slist|nl2br }}
+    {% endif %}
+    </div>
+  </div>
+{% endmacro %}
+{% macro flex_skill_list_section_table(slist) %}
+   <div class="flex-base flex-row flex-nowrap skill_list">
+    {% if '|' in slist %}
+       {{ slist|ParseTable }}
+    {% else %}
+       {{ slist|nl2br}}
+    {% endif %}
+  </div>
+{% endmacro %}
+{% macro flex_skill_list_section(slist) %}
+  <div class="flex-base flex-row flex-nowrap skill_list">
+    {% if '|' in slist %}
+       {{ slist|ParseTable }}
+    {% else %}
+       {{ slist|nl2br }}
+    {% endif %}
+  </div>
+{% endmacro %}
+{% macro attrib_w_dcode(sname,spts) %}
+<div class="flex-base flex-row flex-nowrap attribs">
+  <div class="marg_right_1em swweg-header">{{ sname }}</div>
+  {% if spts != '-1' %}
+  <div>{{ spts }}</div>
+  {% endif %}
+</div>
+{% endmacro %}
+{% macro title_block_w_btm_margin(title) %}
+<div class="flex-base flex-row marg_btm_p5em swweg-header">
+  <div>{{ title }}</div>
+</div>
+{% endmacro %}
+{% macro subskill_title(title) %}
+<div class="row marg_top_p5em marg_btm_p5em">
+  <div class="col-md-12 swweg-header">{{title}}</div>
+</div>
+{% endmacro %}
+{% macro skill_power_section(skill_name,skill_pts,power_title,power_list) %}
+  {% import _self as innermacro %}
+  <div class="row">
+    <div class="col-md-12">
+      {{ innermacro.attrib_w_dcode(skill_name,skill_pts) }}
+    </div>
+  </div>
+  <div class="row marg_btm_p5em">
+    <div class="col-md-12 swweg-header">{{ power_title }}</div>
+  </div>
+  {{ innermacro.flex_skill_list_section(power_list) }}
+{% endmacro %}
+{% macro attrib_section(atr_name,atr_score,skill,spec,advance) %}
+  {% import _self as innermacro %}
+  <div class="col-md-6">
+    {{ innermacro.attrib_w_dcode(atr_name,atr_score) }}
+    {{ innermacro.flex_skill_list_section_table(skill) }}
+    {% if spec is defined and spec %}
+        {{ innermacro.subskill_title('Specializations') }}
+        {{ innermacro.skill_list_section(spec) }}
+    {% endif %}
+    {% if advance is defined and advance%}
+       {{ innermacro.subskill_title('Advanced Skills') }}
+       {{ innermacro.skill_list_section(advance) }}
+    {% endif %}
+  </div>
+{% endmacro %}
+{% macro gear_sections(title,slist) %}
+  {% import _self as innermacro %}
+    <div class="col-md-12">
+      <div class="flex-base flex-row attribs">
+        <div>{{ title }}</div>
+      </div>
+      <div class="skill_list">
+		{% if ( '|' in slist ) %}
+			{{ slist|ParseTable }}
+		{% else %}
+			{{ slist|nl2br }}
+		{% endif %}	  
       </div>
     </div>
-  {% endif %}
-{% endblock %}
+{% endmacro %}
 
-{% block gear_group %}
-  <div class="row cat-bar pad_btm_1em">
-    {{ macros.gear_sections('Special Abilities', (variables.special_abilities|ParseTable|BBcode) ) }}
-  </div>
-  <div class="row">
-    {{ macros.gear_sections('Equipment', (variables.equipment|ParseTable|BBcode) ) }}
+{% import _self as macros %}
+{% block body %}
+  <div class="swweg_page">
+    <div class="swweg-container-fluid">
+    	<div class="row cat-bar pad_btm_1em">
+    		<div class="col-md-12">
+    			<div class="row">
+    				<div class="col-md-6 char_name">
+                        {{ variables.name }}
+    				</div>
+    				<div class="col-md-12">
+                        <div class="row">
+                            <div class="col-md-12">
+                                        <div class="flex-base flex-row flex-wrap">
+                                            {{ macros.quick_stat(variables.character_points,'Character Points') }} 
+                                            {{ macros.quick_stat(variables.force_points,'Force Points') }} 
+                                            {{ macros.quick_stat(variables.dark_side_points,'Dark Side Points') }} 
+                                            {{ macros.quick_stat(variables.move,'Move') }}  
+                                            {{ macros.quick_stat(variables.funds,'Funds') }}
+                                            {% set fsens = 'N' %}
+                                            {% if variables.force_sensitive is defined and variables.force_sensitive %}
+                                            {% set fsens = variables.force_sensitive %}
+                                            {% endif %}{{ macros.quick_stat(fsens,'Force Sensitive') }}
+                                            {{ macros.quick_stat(variables.current_wounds,'Current Wounds') }}					
+                                        </div>
+                            </div>
+                        </div>
+    				</div>
+    			</div>
+    		</div>
+    	</div>
+        <div class="row cat-bar pad_btm_1em">
+        <div class="col-md-12">
+            {% set atr_segments = ['Dexterity|dexterity', 'Perception|perception', 'Knowledge|knowledge', 'Strength|strength', 'Mechanical|mechanical', 'Technical|technical'] %}
+            {% for row in atr_segments|batch(2, '') %}
+            <div class="row marg_top_1em">
+                    {% for atr_item in row %}
+                    {% set chunks = atr_item|split('|') %}
+                    {% set title_text = chunks[0] %}
+                    {% set obj_prefix = chunks[1] %}
+                    {% set ascore = macros.attrib_ux(variables[obj_prefix],variables[obj_prefix ~ '_pips']) %}
+                    {{ macros.attrib_section(title_text,ascore, variables[obj_prefix ~ '_skills'], variables[obj_prefix ~ '_specializations'], variables['advanced_' ~ obj_prefix ~ '_skills']) }}
+                    {% endfor %}
+            </div>
+            {% endfor %}
+
+            {% if variables.martial_arts is defined and variables.martial_arts != '' %}
+            <div class="row marg_top_1em">
+            <div class="col-md-12">
+                {% set ascore = macros.attrib_ux(variables.martial_arts,variables.martial_arts_pips) %}
+                {{ macros.skill_power_section('Martial Arts',ascore, 'Maneuvers', variables.maneuvers) }}
+            </div>
+            </div>
+            {% endif %}
+        </div>
+        </div>
+        {% if variables.force_sensitive is defined and variables.force_sensitive == "Y" %}
+            <div class="row cat-bar pad_btm_1em">
+                <div class="col-md-12">
+                    {% set atr_segments = ['Control|force_skill_control', 'Sense|force_skill_sense', 'Alter|force_skill_alter'] %}
+                    {% for atr_item in atr_segments %}
+                    {% set chunks = atr_item|split('|') %}
+                    {% set title_text = chunks[0] %}
+                    {% set obj_prefix = chunks[1] %}
+                    {% if variables[obj_prefix] is defined and variables[obj_prefix] != '' %}
+                    <div class="row">
+                        <div class="col-md-12">
+                        {% set pip_ref = obj_prefix %}
+                        {% set pip_ref = pip_ref|replace({'force_skill_': 'force_skill_pips_'}) %}
+                        {{ macros.attrib_w_dcode(title_text,( macros.attrib_ux(variables[obj_prefix],variables[pip_ref]) ) ) }}
+                        {{ macros.title_block_w_btm_margin(title_text ~ ' Powers') }}
+                        {% set power_ref = obj_prefix %}
+                        {% set power_ref = power_ref|replace({'force_skill_': ''}) %}
+                        {% set power_ref = variables[power_ref ~ '_powers'] %}
+                        {{ macros.flex_skill_list_section( power_ref ) }}
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                    {% set atr_segments = ['Control / Sense Powers|control_and_sense_powers', 'Control / Alter Powers|control_and_alter_powers', 'Sense / Alter Powers|sense_and_alter_powers', 'Control / Sense / Alter Powers|control_sense_and_alter_powers'] %}
+                    {% for atr_item in atr_segments %}
+                    {% set chunks = atr_item|split('|') %}
+                    {% set title_text = chunks[0] %}
+                    {% set obj_prefix = chunks[1] %}
+                    {% if variables[obj_prefix] is defined and variables[obj_prefix] != '' %}
+                    <div class="row">
+                        <div class="col-md-12">
+                        {{ macros.attrib_w_dcode(title_text,'-1') }}
+                        {{ macros.flex_skill_list_section( (variables[obj_prefix]) ) }}
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+        {% if variables.special_abilities is defined and variables.special_abilities != "" %} 
+            <div class="row cat-bar pad_btm_1em">
+                {{ macros.gear_sections('Special Abilities', variables.special_abilities ) }}
+            </div>
+        {% endif %}
+        {% if variables.notes_and_misc_information is defined and variables.notes_and_misc_information != "" %}
+            <div class="row cat-bar pad_btm_1em">
+                {{ macros.gear_sections('Equipment', variables.equipment ) }}
+            </div>
+            <div class="row">
+                {{ macros.gear_sections('Notes, Story Factors, and Misc Information', variables.notes_and_misc_information) }}
+            </div>
+        {% else %}
+            <div class="row cat-bar pad_btm_1em">
+                {{ macros.gear_sections('Equipment', variables.equipment ) }}
+            </div>
+        {% endif %}
+    </div>
   </div>
 {% endblock %}
